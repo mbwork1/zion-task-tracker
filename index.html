@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2e6b4d">
+  <title>Zion's Task Tracker</title>
+  <style>
+    :root {
+      --green:#2e6b4d; --green-dark:#204b37; --green-soft:#e9f5ed;
+      --gold:#f2c65c; --gold-dark:#61450d; --ink:#24352d; --muted:#53675b;
+      --cream:#f7f4ec; --card:#fffefa; --line:#e4e6dd; --red:#a94646;
+      --shadow:0 12px 28px rgba(30,55,43,.09);
+    }
+    *{box-sizing:border-box}
+    html{background:var(--cream)}
+    body{margin:0;min-height:100vh;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:linear-gradient(145deg,#fbfaf4,#edf4ec);padding:24px}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    .app{max-width:1280px;margin:0 auto}
+    .hero{text-align:center;margin:4px 0 24px}
+    .hero h1{font-size:clamp(1.75rem,4vw,3rem);line-height:1.1;margin:0;color:var(--green-dark);letter-spacing:-.04em}
+    .hero .trophy{display:inline-block;margin-right:.15em;animation:bob 2s ease-in-out infinite}
+    @keyframes bob{50%{transform:translateY(-4px) rotate(4deg)}}
+    .hero p{margin:9px auto 0;max-width:650px;color:var(--muted);font-size:1rem}
+    .top-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:18px;margin-bottom:18px}
+    .card{background:rgba(255,254,250,.94);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+    .allowance{padding:24px;background:linear-gradient(135deg,#fff1b6,#f3ca62);border-color:#d8ae48}
+    .allowance-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .allowance-title{display:flex;align-items:center;gap:14px}
+    .coin{font-size:3rem;line-height:1}
+    .allowance h2{margin:0;color:#60420d;font-size:1.32rem}
+    .allowance p{margin:4px 0 0;color:#61450d;font-size:.95rem}
+    .amount{text-align:right;white-space:nowrap}
+    .amount strong{display:block;color:var(--green-dark);font-size:2.5rem;line-height:1}
+    .amount span{color:#61450d;font-size:.82rem}
+    .progress-track{height:14px;margin-top:20px;background:rgba(255,255,255,.55);border-radius:99px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.12)}
+    .progress-fill{height:100%;width:0;background:linear-gradient(90deg,#3c9b60,#a9dc6b);border-radius:inherit;transition:width .35s ease}
+    .progress-caption{display:flex;justify-content:space-between;gap:10px;margin-top:8px;color:#61450d;font-size:.83rem}
+    .calendar{padding:20px}
+    .calendar h2{font-size:1.1rem;color:var(--green-dark);margin:0 0 13px}
+    .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+    .weekday{text-align:center;color:var(--muted);font-size:.68rem;font-weight:700;text-transform:uppercase}
+    .cal-day{min-height:52px;border:1px solid var(--line);border-radius:11px;background:#fafaf5;color:var(--ink);padding:5px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:.15s}
+    .cal-day:hover:not(:disabled){border-color:var(--green);transform:translateY(-1px)}
+    .cal-day:disabled{cursor:default;opacity:.72}
+    .cal-day .num{font-size:.88rem;font-weight:800}
+    .cal-day .mark{font-size:.75rem;line-height:1}
+    .cal-day.done{background:#e7f5e9;border-color:#bfe1c7;color:#23613c}
+    .cal-day.partial{background:#fff6d9;border-color:#edcf72;color:#856117}
+    .cal-day.today{box-shadow:0 0 0 2px var(--green)}
+    .date-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;margin-bottom:18px}
+    .nav-btn{border:0;border-radius:12px;background:#e6eee7;color:var(--green-dark);padding:10px 17px;font-weight:800;min-height:44px;transition:.15s}
+    .nav-btn:hover:not(:disabled){background:#d2e3d6}
+    .nav-btn:disabled{opacity:.4;cursor:not-allowed}
+    .date-center{text-align:center;min-width:0}
+    .date-display{font-weight:800;color:var(--green-dark);font-size:1.14rem}
+    .day-label{color:var(--muted);font-size:.84rem;margin-top:3px}
+    .task-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .task-card{padding:20px 22px;min-width:0}
+    .task-card h2{display:flex;align-items:center;gap:9px;color:var(--green-dark);font-size:1.18rem;margin:0 0 10px;padding-bottom:12px;border-bottom:2px solid #eef0e8}
+    .task-card h2 .badge{margin-left:auto;background:#edf1e8;border-radius:99px;padding:4px 10px;font-size:.76rem;color:var(--green-dark);white-space:nowrap}
+    .task-list{margin:0;padding:0;list-style:none}
+    .task-item{border-bottom:1px solid #eef0e8}
+    .task-item:last-child{border-bottom:0}
+    .task-label{display:flex;align-items:center;gap:12px;min-height:55px;padding:8px 4px;color:var(--ink);cursor:pointer;border-radius:10px;line-height:1.3}
+    .task-label:hover{background:#f5f8f3}
+    .task-label input{appearance:none;-webkit-appearance:none;width:28px;height:28px;flex:0 0 28px;margin:0;border:2px solid #acbbae;border-radius:8px;background:#fff;position:relative;transition:.15s}
+    .task-label input:checked{background:#42945c;border-color:#42945c}
+    .task-label input:checked::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:white;font-size:19px;font-weight:900}
+    .task-label input:focus-visible,.nav-btn:focus-visible,.cal-day:focus-visible,.small-btn:focus-visible,.modal button:focus-visible{outline:3px solid #82b8e8;outline-offset:2px}
+    .emoji{font-size:1.38rem;flex:0 0 auto}
+    .task-text{flex:1}
+    .task-item.completed .task-text{text-decoration:line-through;color:#52665a}
+    .bottom-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;padding:16px 20px}
+    .score{font-weight:800;color:var(--green-dark)}
+    .score strong{font-size:1.35rem}
+    .actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+    .small-btn{border:0;background:#e8eee8;color:var(--green-dark);border-radius:10px;padding:10px 14px;font-weight:750;min-height:42px}
+    .small-btn:hover{background:#d6e4d8}.small-btn.danger{color:var(--red)}
+    .tip{text-align:center;color:var(--muted);font-size:.8rem;margin:17px 0 4px}
+    .modal-backdrop{display:none;position:fixed;inset:0;z-index:10;background:rgba(20,35,27,.55);place-items:center;padding:20px}
+    .modal-backdrop.show{display:grid}
+    .modal{max-width:430px;width:100%;background:#fffefa;border-radius:24px;padding:36px 28px;text-align:center;box-shadow:0 25px 80px rgba(0,0,0,.25)}
+    .modal .big{font-size:4rem}.modal h2{margin:10px 0 7px;color:var(--green-dark)}.modal p{color:var(--muted);margin:0 0 20px}.modal button{border:0;background:#3c9259;color:white;border-radius:99px;padding:13px 28px;font-weight:800}
+    .desktop-note{display:none}
+    body.desktop .desktop-note{display:inline}
+    @media (min-width:900px){body:not(.desktop) .task-card{min-height:420px}}
+    @media (max-width:900px){body{padding:16px}.top-grid,.task-grid{grid-template-columns:1fr}.task-card{min-height:0}}
+    @media (max-width:520px){.allowance{padding:18px}.allowance-head{align-items:flex-start}.coin{font-size:2.4rem}.allowance h2{font-size:1.08rem}.amount strong{font-size:2rem}.calendar{padding:14px}.cal-day{min-height:45px}.date-nav{padding:11px 12px;gap:8px}.nav-btn{padding:9px 12px}.date-display{font-size:1rem}.task-card{padding:16px}.bottom-bar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start;width:100%}.small-btn{flex:1}}
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <h1><span class="trophy" aria-hidden="true">🏆</span> Zion's Task Tracker</h1>
+      <p>Complete every task for 14 days to unlock Zion's <strong>$20 allowance</strong>.<span class="desktop-note"> Desktop view.</span></p>
+    </header>
+
+    <section class="top-grid" aria-label="Allowance and calendar">
+      <div class="card allowance">
+        <div class="allowance-head">
+          <div class="allowance-title"><span class="coin" aria-hidden="true">💰</span><div><h2>Allowance Goal</h2><p id="progressText">0 of 14 full days complete</p></div></div>
+          <div class="amount"><strong id="amount">$0.00</strong><span id="amountLabel">unlocked at the finish</span></div>
+        </div>
+        <div class="progress-track" role="progressbar" aria-label="Allowance progress" aria-valuemin="0" aria-valuemax="14" aria-valuenow="0"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-caption"><span>Day 1</span><span id="progressPercent">0%</span><span>Day 14</span></div>
+      </div>
+      <div class="card calendar">
+        <h2>📅 14-day progress</h2>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+    </section>
+
+    <section class="card date-nav" aria-label="Choose a day">
+      <button class="nav-btn" id="prevBtn" type="button" aria-label="Previous day">← Previous</button>
+      <div class="date-center"><div class="date-display" id="dateDisplay"></div><div class="day-label" id="dayLabel"></div></div>
+      <button class="nav-btn" id="nextBtn" type="button" aria-label="Next day">Next →</button>
+    </section>
+
+    <section class="task-grid" aria-label="Daily tasks">
+      <article class="card task-card"><h2>🌅 Morning Tasks <span class="badge" id="morningBadge">0/5</span></h2><ul class="task-list" id="morningTasks"></ul></article>
+      <article class="card task-card"><h2>☀️ Day Tasks <span class="badge" id="dayBadge">0/5</span></h2><ul class="task-list" id="dayTasks"></ul></article>
+      <article class="card task-card"><h2>🌙 Before Sleep <span class="badge" id="eveningBadge">0/5</span></h2><ul class="task-list" id="eveningTasks"></ul></article>
+    </section>
+
+    <footer class="card bottom-bar">
+      <div class="score">Today's progress: <strong id="score">0/15</strong> tasks</div>
+      <div class="actions"><button class="small-btn" id="clearDayBtn" type="button">Clear today's checks</button><button class="small-btn danger" id="resetBtn" type="button">Start over</button></div>
+    </footer>
+    <p class="tip">Your progress saves automatically on this device.</p>
+  </main>
+
+  <div class="modal-backdrop" id="celebration" role="dialog" aria-modal="true" aria-labelledby="celebrationTitle">
+    <div class="modal"><div class="big" aria-hidden="true">🎉💵🎉</div><h2 id="celebrationTitle">You earned $20!</h2><p>Zion completed all 14 days of tasks. Great job!</p><button id="closeCelebration" type="button">Awesome!</button></div>
+  </div>
+
+  <script>
+    (() => {
+      const isDesktop = location.pathname.endsWith('/desktop.html');
+      if (isDesktop) document.body.classList.add('desktop');
+      const DAYS = 14;
+      const STORAGE = 'zion-task-tracker-v3';
+      const START_STORAGE = 'zion-task-tracker-start-v3';
+      const groups = {
+        morning: [
+          ['m1','🪥','Brush your teeth'],['m2','🛏️','Make your bed'],['m3','🍽️','Empty the dishwasher'],['m4','🧹','Sweep the kitchen area'],['m5','🥣','Eat breakfast']
+        ],
+        day: [
+          ['d1','📚','30 min of reading (not DOGMAN)'],['d2','💪','20 push ups'],['d3','✏️','30 min of math/writing'],['d4','🧩','30 min of brain games'],['d5','💧','Drink a bottle of water']
+        ],
+        evening: [
+          ['e1','🍽️','Load the dishwasher'],['e2','👕','Get clothes and room organized for tomorrow'],['e3','🪥','Brush your teeth'],['e4','📓','Journal: 2 things you did today and 2 things for tomorrow'],['e5','🛌','Go to bed']
+        ]
+      };
+      const allTasks = Object.values(groups).flat();
+      const total = allTasks.length;
+      const $ = id => document.getElementById(id);
+      const iso = d => { const x = new Date(d); x.setHours(12,0,0,0); return x.toISOString().slice(0,10); };
+      const fromIso = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d,12); };
+      const addDays = (date, n) => { const d = new Date(date); d.setDate(d.getDate()+n); return d; };
+      const today = new Date(); today.setHours(12,0,0,0);
+      let startIso = localStorage.getItem(START_STORAGE);
+      if (!startIso || !/^\d{4}-\d{2}-\d{2}$/.test(startIso)) { startIso = iso(today); localStorage.setItem(START_STORAGE,startIso); }
+      let startDate = fromIso(startIso);
+      let selectedIndex = Math.max(0, Math.min(DAYS-1, Math.floor((today-startDate)/86400000)));
+      let data; try { data = JSON.parse(localStorage.getItem(STORAGE) || '{}'); } catch { data = {}; }
+      const getDay = index => { const key=iso(addDays(startDate,index)); if (!data[key]) data[key]={}; return data[key]; };
+      const save = () => localStorage.setItem(STORAGE, JSON.stringify(data));
+      const dayComplete = index => allTasks.every(t => getDay(index)[t[0]] === true);
+      const doneCount = index => allTasks.reduce((n,t) => n + (getDay(index)[t[0]] === true ? 1 : 0), 0);
+      const completedDays = () => Array.from({length:DAYS},(_,i)=>dayComplete(i)).filter(Boolean).length;
+      const fmt = d => new Intl.DateTimeFormat(undefined,{weekday:'long',month:'short',day:'numeric',year:'numeric'}).format(d);
+
+      function renderTasks() {
+        [['morning','morningTasks','morningBadge'],['day','dayTasks','dayBadge'],['evening','eveningTasks','eveningBadge']].forEach(([group, listId, badgeId]) => {
+          const list=$(listId), day=getDay(selectedIndex), tasks=groups[group];
+          list.innerHTML='';
+          let count=0;
+          tasks.forEach(([id,emoji,text]) => {
+            const checked=day[id]===true; if (checked) count++;
+            const li=document.createElement('li'); li.className='task-item'+(checked?' completed':'');
+            const label=document.createElement('label'); label.className='task-label';
+            const input=document.createElement('input'); input.type='checkbox'; input.checked=checked; input.setAttribute('aria-label',text);
+            input.addEventListener('change', () => { getDay(selectedIndex)[id]=input.checked; save(); render(); });
+            const icon=document.createElement('span'); icon.className='emoji'; icon.textContent=emoji; icon.setAttribute('aria-hidden','true');
+            const span=document.createElement('span'); span.className='task-text'; span.textContent=text;
+            label.append(input,icon,span); li.append(label); list.append(li);
+          });
+          $(badgeId).textContent=`${count}/${tasks.length}`;
+        });
+      }
+      function renderCalendar() {
+        const grid=$('calendarGrid'); grid.innerHTML='';
+        ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(x=>{const el=document.createElement('div');el.className='weekday';el.textContent=x;grid.append(el);});
+        const first=startDate.getDay(); for(let i=0;i<first;i++){const blank=document.createElement('div');grid.append(blank);}
+        for(let i=0;i<DAYS;i++){
+          const d=addDays(startDate,i), count=doneCount(i), complete=count===total;
+          const b=document.createElement('button'); b.type='button'; b.className='cal-day '+(complete?'done':count?'partial':'')+(i===selectedIndex?' today':'');
+          b.setAttribute('aria-label',`Day ${i+1}, ${count} of ${total} tasks complete`); b.title=`Day ${i+1}: ${count}/${total} tasks`;
+          b.innerHTML=`<span class="num">${d.getDate()}</span><span class="mark">${complete?'✅':count?'•':'○'}</span>`;
+          b.addEventListener('click',()=>{selectedIndex=i;render();}); grid.append(b);
+        }
+      }
+      function render() {
+        const count=doneCount(selectedIndex), completeDays=completedDays(), percent=Math.round(completeDays/DAYS*100);
+        $('dateDisplay').textContent=fmt(addDays(startDate,selectedIndex)); $('dayLabel').textContent=`Day ${selectedIndex+1} of ${DAYS}`;
+        $('prevBtn').disabled=selectedIndex===0; $('nextBtn').disabled=selectedIndex===DAYS-1;
+        $('score').textContent=`${count}/${total}`; $('progressText').textContent=`${completeDays} of ${DAYS} full days complete`;
+        $('progressFill').style.width=percent+'%'; $('progressPercent').textContent=percent+'%'; $('amount').textContent=completeDays===DAYS?'$20.00':'$0.00'; $('amountLabel').textContent=completeDays===DAYS?'earned!':'unlocked at the finish';
+        document.querySelector('[role="progressbar"]').setAttribute('aria-valuenow',completeDays);
+        renderTasks(); renderCalendar();
+      }
+      $('prevBtn').addEventListener('click',()=>{if(selectedIndex){selectedIndex--;render();}});
+      $('nextBtn').addEventListener('click',()=>{if(selectedIndex<DAYS-1){selectedIndex++;render();}});
+      $('clearDayBtn').addEventListener('click',()=>{if(confirm('Clear all checks for this day?')){const key=iso(addDays(startDate,selectedIndex));delete data[key];save();render();}});
+      $('resetBtn').addEventListener('click',()=>{if(confirm('Start a new 14-day tracker and erase saved progress?')){localStorage.removeItem(STORAGE);startIso=iso(today);localStorage.setItem(START_STORAGE,startIso);startDate=fromIso(startIso);selectedIndex=0;data={};render();}});
+      $('closeCelebration').addEventListener('click',()=>$('celebration').classList.remove('show'));
+      $('celebration').addEventListener('click',e=>{if(e.target.id==='celebration')e.currentTarget.classList.remove('show');});
+      render();
+    })();
+  </script>
+</body>
+</html>
